@@ -1,0 +1,199 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --pink: #ff5c8a;
+  --pink-dark: #e03e6d;
+  --grey: #9aa0a6;
+  --text: #3a2a3f;
+}
+
+body {
+  font-family: 'Fredoka', system-ui, sans-serif;
+  min-height: 100vh;
+  overflow: hidden;
+  color: var(--text);
+  background: linear-gradient(135deg, #ffe1ec 0%, #ffd6a5 50%, #cde7ff 100%);
+  background-size: 200% 200%;
+  animation: bg 10s ease infinite;
+}
+
+@keyframes bg {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.layout {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 1.5rem;
+}
+
+.card,
+.success {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px);
+  border-radius: 28px;
+  padding: 2.5rem 2rem;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(224, 62, 109, 0.25);
+  animation: pop 0.6s cubic-bezier(.2, 1.6, .4, 1);
+}
+
+@keyframes pop {
+  from { transform: scale(0.6); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.emoji {
+  font-size: 2.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.emoji.big {
+  font-size: 3.5rem;
+  animation: bounce 1s ease infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+h1 {
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  line-height: 1.25;
+}
+
+h1 span {
+  color: var(--pink);
+  white-space: nowrap;
+}
+
+.subtitle {
+  margin-top: 0.75rem;
+  font-size: 1.15rem;
+  opacity: 0.8;
+}
+
+.buttons {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  min-height: 60px;
+}
+
+.btn {
+  font-family: inherit;
+  font-size: 1.15rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 999px;
+  padding: 0.85rem 2rem;
+  cursor: pointer;
+  color: #fff;
+  transition: transform 0.25s cubic-bezier(.2, 1.6, .4, 1), box-shadow 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.accept {
+  background: var(--pink);
+  box-shadow: 0 6px 0 var(--pink-dark);
+}
+
+.accept:hover {
+  filter: brightness(1.05);
+}
+
+.accept:active {
+  box-shadow: 0 2px 0 var(--pink-dark);
+  translate: 0 4px;
+}
+
+.reject {
+  background: var(--grey);
+  box-shadow: 0 6px 0 #7b8086;
+  z-index: 50;
+  touch-action: none;
+  /* the fast "zoom away" */
+  transition: left 0.18s ease-out, top 0.18s ease-out, transform 0.18s ease-out;
+}
+
+/* Hamster on the right, green screen removed by the SVG filter */
+.hamster {
+  flex: 0 0 auto;
+  width: min(380px, 35vw);
+}
+
+.hamster video {
+  width: 100%;
+  display: block;
+  filter: url(#chroma-key);
+  pointer-events: none;
+}
+
+.hidden {
+  display: none;
+}
+
+.taunt {
+  position: fixed;
+  top: 1.25rem;
+  left: 50%;
+  translate: -50% -20px;
+  background: var(--text);
+  color: #fff;
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, translate 0.2s;
+  z-index: 60;
+}
+
+.taunt.show {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+.confetti {
+  position: fixed;
+  top: -50px;
+  pointer-events: none;
+  animation: fall linear forwards;
+  z-index: 40;
+}
+
+@keyframes fall {
+  to { transform: translateY(110vh) rotate(720deg); }
+}
+
+/* Responsive: stack the hamster under the card */
+@media (max-width: 760px) {
+  .layout {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .card,
+  .success {
+    padding: 2rem 1.25rem;
+  }
+
+  .hamster {
+    width: min(260px, 70vw);
+  }
+}

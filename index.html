@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Movie Invitation 🎬</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- SVG filter that removes the green screen from the hamster video -->
+    <svg width="0" height="0" style="position: absolute">
+      <filter id="chroma-key" color-interpolation-filters="sRGB">
+        <feColorMatrix
+          type="matrix"
+          values="1 0 0 0 0
+                0 1 0 0 0
+                0 0 1 0 0
+                2 -3 2 0 1"
+        />
+      </filter>
+    </svg>
+
+    <main class="layout">
+      <section class="card" id="card">
+        <div class="emoji">🍿🎬🍿</div>
+        <h1>
+          Regie, Citta and Aziza you are invited to go to the movies on
+          <span>October 17</span>
+        </h1>
+        <p class="subtitle">Will you come with me?</p>
+
+        <div class="buttons">
+          <button class="btn accept" id="accept">Accept 💖</button>
+          <button class="btn reject" id="reject">Reject 😢</button>
+        </div>
+      </section>
+
+      <section class="success hidden" id="success">
+        <div class="emoji big">🥳🎉🍿</div>
+        <h1>Yaaay! It's a date!</h1>
+        <p class="subtitle">
+          See you at the movies on <strong>October 17</strong> 🎬
+        </p>
+      </section>
+
+      <aside class="hamster">
+        <video src="assets/hamster.mp4" autoplay loop muted playsinline></video>
+      </aside>
+    </main>
+
+    <p class="taunt" id="taunt"></p>
+
+    <script>
+      const reject = document.getElementById("reject");
+      const accept = document.getElementById("accept");
+      const taunt = document.getElementById("taunt");
+
+      const taunts = [
+        "Nope! 😜",
+        "Too slow! 🐹",
+        "Nice try 😏",
+        "Not today!",
+        "Catch me if you can 🏃",
+        "Just click Accept 💖",
+        "Error 404: No not found",
+        "The hamster says no 🐹",
+        "Hehehe 🤭",
+      ];
+      let scale = 1;
+      let tauntTimer;
+
+      function runAway(e) {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+
+        // On first escape, detach the button so it can roam the whole screen
+        if (reject.style.position !== "fixed") {
+          const r = reject.getBoundingClientRect();
+          reject.style.position = "fixed";
+          reject.style.left = r.left + "px";
+          reject.style.top = r.top + "px";
+          document.body.appendChild(reject);
+        }
+
+        const pad = 12;
+        const bw = reject.offsetWidth;
+        const bh = reject.offsetHeight;
+        const maxX = window.innerWidth - bw - pad;
+        const maxY = window.innerHeight - bh - pad;
+        const cur = reject.getBoundingClientRect();
+
+        // Pick a spot far enough from where it is now
+        let x,
+          y,
+          tries = 0;
+        do {
+          x = pad + Math.random() * Math.max(0, maxX - pad);
+          y = pad + Math.random() * Math.max(0, maxY - pad);
+          tries++;
+        } while (Math.hypot(x - cur.left, y - cur.top) < 150 && tries < 20);
+
+        reject.style.left = x + "px";
+        reject.style.top = y + "px";
+        reject.style.transform = `rotate(${(Math.random() * 40 - 20).toFixed(0)}deg) scale(${scale})`;
+
+        // Accept grows a little each time, reject shrinks
+        scale = Math.max(0.6, scale - 0.04);
+        const s = parseFloat(accept.dataset.scale || "1") + 0.06;
+        accept.dataset.scale = Math.min(s, 1.8);
+        accept.style.transform = `scale(${accept.dataset.scale})`;
+
+        taunt.textContent = taunts[Math.floor(Math.random() * taunts.length)];
+        taunt.classList.add("show");
+        clearTimeout(tauntTimer);
+        tauntTimer = setTimeout(() => taunt.classList.remove("show"), 900);
+      }
+
+      // Desktop: flee on hover. Mobile: flee on touch before a click can happen.
+      reject.addEventListener("mouseenter", runAway);
+      reject.addEventListener("touchstart", runAway, { passive: false });
+      reject.addEventListener("pointerdown", runAway);
+      reject.addEventListener("click", runAway);
+      reject.addEventListener("focus", runAway); // no sneaky keyboard tabbing either
+
+      // Also flee when the cursor just gets close
+      document.addEventListener("mousemove", (e) => {
+        if (reject.style.position !== "fixed") return;
+        const r = reject.getBoundingClientRect();
+        const cx = r.left + r.width / 2;
+        const cy = r.top + r.height / 2;
+        if (Math.hypot(e.clientX - cx, e.clientY - cy) < 80) runAway();
+      });
+
+      window.addEventListener("resize", () => {
+        if (reject.style.position === "fixed") runAway();
+      });
+
+      accept.addEventListener("click", () => {
+        document.getElementById("card").classList.add("hidden");
+        document.getElementById("success").classList.remove("hidden");
+        reject.remove();
+        confetti();
+      });
+
+      function confetti() {
+        const items = ["🍿", "🎬", "💖", "🎉", "🐹", "⭐"];
+        for (let i = 0; i < 60; i++) {
+          const c = document.createElement("span");
+          c.className = "confetti";
+          c.textContent = items[Math.floor(Math.random() * items.length)];
+          c.style.left = Math.random() * 100 + "vw";
+          c.style.animationDuration = 2 + Math.random() * 3 + "s";
+          c.style.animationDelay = Math.random() * 1.5 + "s";
+          c.style.fontSize = 18 + Math.random() * 22 + "px";
+          document.body.appendChild(c);
+          setTimeout(() => c.remove(), 7000);
+        }
+      }
+    </script>
+  </body>
+</html>
